@@ -326,7 +326,11 @@ def parse_medicines_from_text(text: str) -> List[Medicine]:
 @api_router.get("/prescriptions/{user_id}")
 async def get_prescriptions(user_id: str):
     """Get all prescriptions for a user"""
-    prescriptions = await db.prescriptions.find({"user_id": user_id}).to_list(100)
+    # Exclude large image_base64 field from list queries for performance
+    prescriptions = await db.prescriptions.find(
+        {"user_id": user_id}, 
+        {"image_base64": 0}
+    ).to_list(100)
     return {"prescriptions": prescriptions}
 
 @api_router.get("/prescription/{prescription_id}")
